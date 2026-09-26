@@ -148,7 +148,7 @@ class LoadModels:
             ## Check if audio was generated
             if len(Audio.samples)>0:
                 ## Trim the samples from the list to remove the noise from the end
-                TrimSize=int(Audio.sample_rate*0.0556)
+                TrimSize=int(Audio.sample_rate*0.0256)
                 ## Generate audio in RAM
                 AudioBuffer=io.BytesIO()
                 ## Write audio into a Wav format for sending
@@ -242,7 +242,7 @@ class LoadModels:
             LineMetadata=result.json.get("res",{}) ## get the res value from json or return empty dict if doesn't exist
             ## Obtain the coordinates of each line
             CropCoordinates=LineMetadata.get("dt_polys",[])
-        print(CoordsJSONObject)
+        # print(CoordsJSONObject)
         ## Check if the CropCoordinates is empty
         if CropCoordinates is None or len(CropCoordinates)==0:
             return []

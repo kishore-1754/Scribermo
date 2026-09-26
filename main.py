@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI,UploadFile,File,Form,Request,Response,HTTPException
 from LoadModels import LoadModels
 from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
 from LanguageMap import Languages
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -26,7 +27,7 @@ app.add_middleware(
     allow_methods=["POST","GET"], ## Allow requests of POST and GET type,
     allow_credentials=False, ## Don't cookies and other credentials
     allow_headers=["*"] ## Allow all types of headers
-)
+    )
 
 ## Function to stream responses insted of sending a large HTTP response (for low resource devices)
 async def stream(TranslatedText:str,audioBuffer):
@@ -47,14 +48,17 @@ async def stream(TranslatedText:str,audioBuffer):
     
 @app.get("/")
 async def home():
-    return FileResponse("index.html")
+    return FileResponse("frontend/index.html")
+
+## Serve frontend static files (CSS, JS)
+app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
 ## Post API
 @app.post("/TTIS")
 async def ImgToSpeech(request:Request,Input:UploadFile=File(...),TargetLanguage:str=Form(...)): ## Single file format input and get the client type, and target language
     TargetCode=app.state.LanguageMap[TargetLanguage]["LangCode"]
     Speaker=app.state.LanguageMap[TargetLanguage]["SpeakerID"]
     # ExtractedImage=app.state.Extractor(input)
-    print("Received TargetLanguage:", TargetLanguage)
+    # print("Received TargetLanguage:", TargetLanguage)
     ## Select appropriate Speaker ID
     if "female" in Speaker:
         SpeakerID=Speaker["female"]
