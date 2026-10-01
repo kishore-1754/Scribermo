@@ -5,6 +5,7 @@ from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from LanguageMap import Languages
 from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
 
 ## function to load models  once when server starts using lifespan
 @asynccontextmanager
@@ -105,4 +106,7 @@ async def ImgToSpeech(request:Request,Input:UploadFile=File(...),TargetLanguage:
         ## Return the binary object as response
         return Response(content=ResponseBody, media_type="application/octet-stream")
 
-        
+
+
+if __name__ == "__main__":
+    uvicorn.run(app,host="0.0.0.0",port=8000)
