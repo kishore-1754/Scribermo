@@ -148,7 +148,7 @@ class LoadModels:
             ## Check if audio was generated
             if len(Audio.samples)>0:
                 ## Trim the samples from the list to remove the noise from the end
-                TrimSize=int(Audio.sample_rate*0.0256)
+                TrimSize=int(Audio.sample_rate*0.556)
                 ## Generate audio in RAM
                 AudioBuffer=io.BytesIO()
                 ## Write audio into a Wav format for sending
@@ -160,7 +160,10 @@ class LoadModels:
 
 #_________________________________________________________________________________________________________________________________________________________
     ## TROCR PIPELINE
-    TrPath=os.path.join(BaseDirectory,"models","OCR","trocr-small-handwritten")
+    SmallPath=os.path.join(BaseDirectory,"models","OCR","trocr-small-handwritten")
+    FineTunedPath=os.path.join(BaseDirectory,"models","OCR","trocr-bentham-best")
+
+    TrPath=FineTunedPath if os.path.exists(FineTunedPath) else SmallPath
     ## Method to load the model
     def LoadOCR(self):
         ## Load processor and prevent the method from downloading it online

@@ -6,6 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from LanguageMap import Languages
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+from pydantic import BaseModel
 
 ## function to load models  once when server starts using lifespan
 @asynccontextmanager
@@ -107,6 +108,30 @@ async def ImgToSpeech(request:Request,Input:UploadFile=File(...),TargetLanguage:
         return Response(content=ResponseBody, media_type="application/octet-stream")
 
 
+class TranslatePayload(BaseModel):
+    text: str
+    target_language: str
+
+@app.post("/esp32Endpoint")
+async def translate_text(payload: TranslatePayload):
+    # Validate target language
+    if payload.target_language not in app.state.LanguageMap:
+        raise HTTPException(status_code=400, detail="Invalid target language")
+        
+    if not payload.text.strip():
+        raise HTTPException(status_code=400, detail="Text cannot be empty")
+        
+    target_code = app.state.LanguageMap[payload.target_language]["LangCode"]
+    models = app.state.models
+    
+    # Perform translation
+    translated = models.Translator([payload.text], targetLang=target_code, maxTokens=500)
+    
+    return {
+        "original_text": payload.text,
+        "target_language": payload.target_language,
+        "translated_text": translated[0]
+    }
 
 if __name__ == "__main__":
     uvicorn.run(app,host="0.0.0.0",port=8000)
